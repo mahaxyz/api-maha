@@ -4,6 +4,7 @@ import nconf from "nconf";
 import cache from "../utils/cache";
 import abi from "./abi/ERC20Token.json";
 import { ethProvider } from "../utils/providers";
+import { IPriceList } from "src/utils/market";
 
 const addressToCheckBal = ["0xFdf0d51ddD34102472D7130c3d4831BC77386e78"];
 
@@ -13,20 +14,11 @@ const getMAHAINRPrice = async () => {
   const api = await fetch(
     "https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=inr"
   );
-  console.log(api);
   const json = await api.json();
   return Math.floor(json.mahadao.inr);
 };
 
 export const calculateMetrics = async () => {
-  //maha price
-  const api = await fetch(
-    "https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=inr"
-  );
-  console.log(api);
-  const json = await api.json();
-  cache.set("maha-inr", Math.floor(json.mahadao.inr), 60 * 30);
-
   //maha total supply
   const mahaContract = new ethers.Contract(nconf.get("MAHA"), abi, ethProvider);
   const totalSupplyMAHA =
@@ -70,5 +62,12 @@ export const getTotalSupplyZAI = async (_req: Request, res: Response) => {
 export const mahaInrPrice = async (_req: Request, res: Response) => {
   res.set("Content-Type", "text/html");
   res.status(200);
-  res.send(cache.get("maha-inr"));
+
+  if (cache.get("maha-inr")) {
+    res.send(cache.get("maha-inr"));
+  } else {
+    const supply = await getMAHAINRPrice();
+    cache.set("maha-inr", supply.toString(), 60);
+    res.send(supply.toString());
+  }
 };
