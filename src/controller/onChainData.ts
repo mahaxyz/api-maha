@@ -1,21 +1,20 @@
 import { Request, Response } from "express";
 import { ethers } from "ethers";
 import nconf from "nconf";
+import axios from "axios";
 import cache from "../utils/cache";
 import abi from "./abi/ERC20Token.json";
 import { ethProvider } from "../utils/providers";
-import { IPriceList } from "src/utils/market";
 
 const addressToCheckBal = ["0xFdf0d51ddD34102472D7130c3d4831BC77386e78"];
 
 const denomination = 1e18;
 
 const getMAHAINRPrice = async () => {
-  const api = await fetch(
+  const response = await axios.get(
     "https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=inr"
   );
-  const json = await api.json();
-  return Math.floor(json.mahadao.inr);
+  return response.data.mahadao.inr;
 };
 
 export const calculateMetrics = async () => {
