@@ -19,6 +19,14 @@ const getMAHAINRPrice = async () => {
 };
 
 export const calculateMetrics = async () => {
+  //maha price
+  const api = await fetch(
+    "https://api.coingecko.com/api/v3/simple/price?ids=mahadao&vs_currencies=inr"
+  );
+  console.log(api);
+  const json = await api.json();
+  cache.set("maha-inr", Math.floor(json.mahadao.inr), 60 * 30);
+
   //maha total supply
   const mahaContract = new ethers.Contract(nconf.get("MAHA"), abi, ethProvider);
   const totalSupplyMAHA =
