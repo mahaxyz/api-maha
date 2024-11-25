@@ -1,13 +1,11 @@
 import { Request, Response } from "express";
 import { ethers } from "ethers";
+import nconf from "nconf";
 import cache from "../utils/cache";
 import abi from "./abi/ERC20Token.json";
 import { ethProvider } from "../utils/providers";
 
 const addressToCheckBal = ["0xFdf0d51ddD34102472D7130c3d4831BC77386e78"];
-
-const tokenAddressMAHA = "0x745407c86df8db893011912d3ab28e68b62e49b0";
-const tokenAddressUSDz = "0x69000405f9dce69bd4cbf4f2865b79144a69bfe0";
 
 const denomination = 1e18;
 
@@ -22,13 +20,13 @@ const getMAHAINRPrice = async () => {
 
 export const calculateMetrics = async () => {
   //maha total supply
-  const mahaContract = new ethers.Contract(tokenAddressMAHA, abi, ethProvider);
+  const mahaContract = new ethers.Contract(nconf.get("MAHA"), abi, ethProvider);
   const totalSupplyMAHA =
     Number(await mahaContract.totalSupply()) / denomination;
   cache.set("ts:maha", totalSupplyMAHA.toLocaleString(), 60 * 30);
 
   //ZAI total Supply
-  const zaiContract = new ethers.Contract(tokenAddressUSDz, abi, ethProvider);
+  const zaiContract = new ethers.Contract(nconf.get("ZAI"), abi, ethProvider);
   const totalSupplyZAI = Number(await zaiContract.totalSupply()) / denomination;
   cache.set("ts:zai", totalSupplyZAI.toLocaleString(), 60 * 30);
 
